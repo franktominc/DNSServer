@@ -15,7 +15,7 @@ namespace DNSServer {
 
         private long id = 0L;
 
-        private string[] rootServers = new[]
+        private readonly string[] _rootServers = new[]
         {
             "198.41.0.4",
             "192.228.79.201",
@@ -34,22 +34,21 @@ namespace DNSServer {
 
         public void foo()
         {
-            Interlocked.Increment(ref id);
+                Interlocked.Increment(ref id);
+
             var x = new DNSDatagram();
-            foreach (var rootServer in rootServers) { 
-                Console.WriteLine(rootServer);
-                var ep = new IPEndPoint(IPAddress.Parse(rootServer), 53);
-                Console.WriteLine(ep);
-                udpClient.Connect(ep);
-                udpClient.Send(x.asByteArray(), x.asByteArray().Length);
-                var rc = udpClient.Receive(ref ep);
-                Console.WriteLine(rc.Length);
-                foreach (var b in rc) {
-                    Console.WriteLine(b);
+
+            Parallel.ForEach(_rootServers, (rootServer) =>
+                {
+
+                    var ep = new IPEndPoint(IPAddress.Parse(rootServer), 53);
+
+                    udpClient.Send(x.asByteArray(), x.asByteArray().Length, ep);
+
+                    var rc = udpClient.Receive(ref ep);
+                    Console.WriteLine(new Tuple<string, byte[]>(ep.ToString(), rc));
                 }
-                udpClient.Close();
-                Thread.Sleep(20);
-            }
+            );
            
             Console.ReadKey();
         }

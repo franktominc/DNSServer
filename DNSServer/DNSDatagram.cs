@@ -12,12 +12,12 @@ using System.Threading.Tasks;
 namespace DNSServer {
     class DNSDatagram {
         private short id;
-        private short flags = 0x0100;
-        private short questionCount = 1;
+        private short flags = 0x00;
+        private short questionCount = 0x100;
         private short answersCount = 0;
         private short NSCount = 0;
         private short ARCount = 0;
-        private byte[] body = {0x04, 0x70, 0x6c, 0x61, 0x79, 0x06, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x03, 0x63 , 0x6f, 0x6d, 0x00};
+        private byte[] body = {0x04, 0x70, 0x6c, 0x61, 0x79, 0x06, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x03, 0x63 , 0x6f, 0x6d, 0x00, 0x00, 0x01,0x00, 0x01};
 
         public static byte[] GetBytesInt16(short argument) {
             return BitConverter.GetBytes(argument);
@@ -34,6 +34,7 @@ namespace DNSServer {
             l.AddRange(GetBytesInt16(NSCount));
             l.AddRange(GetBytesInt16(ARCount));
             l.AddRange(body);
+            Console.WriteLine(new string(l.Select(Convert.ToChar).ToArray()));
             return l.ToArray();
         }
     }
